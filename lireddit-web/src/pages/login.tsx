@@ -2,9 +2,9 @@ import React from 'react';
 import { Formik, Form } from 'formik';
 import { Wrapper } from '../components/Wrapper';
 import { InputField } from '../components/InputField';
-import { Box, Button } from '@chakra-ui/core';
+import { Box, Button, Flex, Link } from '@chakra-ui/core';
 import { useMutation } from 'urql';
-import { toErrorMap } from '../utils/toErrorMap';
+import NextLink from 'next/link';
 import { useRouter } from "next/router"
 import { withUrqlClient } from 'next-urql';
 import { createUrqlClient } from '../utils/createUrqlClient';
@@ -34,27 +34,27 @@ const Login: React.FC<loginProps> = ({}) => {
 
     return (
       <Wrapper variant="small">
-        <Formik 
-          initialValues={{ usernameOrEmail: "", password: "" }} 
-          onSubmit={async (values, {setErrors}) => {
+        <Formik
+          initialValues={{ usernameOrEmail: "", password: "" }}
+          onSubmit={async (values, { setErrors }) => {
             const response = await login(values);
             if (response.data?.login.errors) {
               setErrors({
-                setErrors(toErrorMap)
-              })
+                setErrors(toErrorMap);,
+              });
             } else if (response.data?.login.user) {
               // worked
-              router.push('/');
+              router.push("/");
             }
           }}
         >
           {() => (
             <Form>
-                <InputField
-                  name="usernameOrEmail"
-                  placeholder="username or email"
-                  label="Username Or Email"
-                />
+              <InputField
+                name="usernameOrEmail"
+                placeholder="username or email"
+                label="Username Or Email"
+              />
               <Box mt={4}>
                 <InputField
                   name="password"
@@ -63,7 +63,14 @@ const Login: React.FC<loginProps> = ({}) => {
                   type="password"
                 />
               </Box>
-              <Button mt={4} type="submit" variantColor='white'>login</Button>
+              <Flex>
+                <NextLink href="/forgot-password">
+                  <Link ml="auto">Forgot your password? click here!</Link>
+                </NextLink>
+              </Flex>
+              <Button mt={4} type="submit" variantColor="white">
+                login
+              </Button>
             </Form>
           )}
         </Formik>

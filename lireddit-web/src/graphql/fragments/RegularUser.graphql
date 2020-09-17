@@ -1,4 +1,8 @@
 fragment RegularUser on User {
-    id
-    username
+  errors {
+    ...RegularError
+  }
+  user {
+    ...RegularUser
+  }
 }
