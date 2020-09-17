@@ -2,6 +2,8 @@ import { User } from "src/entities/User";
 import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver } from "type-graphql";
 import { MyContext } from '../types';
 import argon2 from 'argon2';
+import { EntityManager } from '@mikro-orm/postgresql';
+import { COOKIE_NAME } from "src/constants";
 
 @InputType()
 class UsernamePasswordInput {
@@ -31,6 +33,15 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+    @Mutation(() => Boolean)
+    async forgotPassword(
+        @Arg('email') email: string,
+        @Ctx() {req}: MyContext
+    ) {
+        // const user = await em.findOne(User, {email})
+        return true/
+    }
+
     @Query(() => User, { nullable: true })
     async me (
         @Ctx() {req, em}: MyContext
@@ -71,12 +82,17 @@ export class UserResolver {
         }
 
         const hashedPassword = await argon2.hash(options.password);
-        const user = em.create(User, {
-            username: options.username,
-            password: hashedPassword
-        });
+        let user;
         try {
-            await em.persistAndFlush(user);
+            const result = await (em as EntityManager).createQueryBuilder(User).getKnexQuery().insert(
+                {
+                    username: options.username,
+                    password: hashedPassword,
+                    created_at: new Date(),
+                    updated_at: new Date()
+                }
+            ).returning("*");
+            user = result[0];
         } catch(err) {
             if (err.code === '23505' || err.detail.includes('already exists')) {
                 // duplicate username error
@@ -126,5 +142,21 @@ export class UserResolver {
         return {
             user
         };
+    }
+
+    @Mutation(() => Boolean)
+    logout(
+        @Ctx() { req, res }: MyContext
+    ) {
+        return new Promise(resolve => req.session.destroy(err => {
+            if (err) {
+                console.log(err);
+                resolve(false)
+                return
+            }
+            
+            res.clearCookie(COOKIE_NAME);
+            resolve(true);
+        }))
     }
 }
