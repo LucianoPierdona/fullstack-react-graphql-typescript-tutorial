@@ -2,50 +2,33 @@ import { Field, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
-  CreateDateColumn,
   Entity,
   ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  PrimaryColumn,
 } from "typeorm";
+import { Post } from "./Post";
 import { User } from "./User";
 
 // m  to n
 //many to many
 //user <-> posts
+//user -> create new user;
 
 @ObjectType()
 @Entity()
-export class Post extends BaseEntity {
-  @Field()
-  @PrimaryGeneratedColumn()
-  id!: number;
+export class Updoot extends BaseEntity {
+  @Column({ type: "int" })
+  value: number
 
-  @Field()
-  @Column()
-  title!: string;
+  @PrimaryColumn()
+  userId: number;
 
-  @Field()
-  @Column()
-  text!: string;
+  @ManyToOne(() => User, (user) => user.updoots)
+  user: User;
+  
+  @PrimaryColumn()
+  postId: number;
 
-  @Field()
-  @Column({ type: "int", default: 0 })
-  points!: number;
-
-  @Field()
-  @Column()
-  creatorId: number;
-
-  @Field()
-  @ManyToOne(() => User, (user) => user.posts)
-  creator: User;
-
-  @Field(() => String)
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @Field(() => String)
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @ManyToOne(() => Post, (post) => post.updoots)
+  post: Post;
 }
