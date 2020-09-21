@@ -4,6 +4,7 @@ import {
   Ctx,
   Field,
   Mutation,
+  FieldResolver,
   ObjectType,
   Query,
   Resolver,
@@ -16,6 +17,7 @@ import { validateRegister } from "src/utils/validadeRegister";
 import { sendEmail } from "src/utils/sendEmail";
 import { v4 } from "uuid";
 import { getConnection } from "typeorm";
+import { rootCertificates } from "tls";
 @ObjectType()
 class FieldError {
   @Field()
@@ -34,8 +36,19 @@ class UserResponse {
   user?: User;
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
+  //Hide the email from others
+  @FieldResolver(() => String)
+  email(@Root() user: User, @Ctx() {req}: MyContext ) {
+    //this is the current user and its ok to show the email
+    if (req.session.userId === user.id) {
+      return user.email
+    }
+    //you are not this user
+    return "";
+  }
+  
   @Mutation(() => UserResponse)
   async changePassword(
     @Arg("token") token: string,

@@ -4,7 +4,6 @@ import {
   Arg,
   Ctx,
   Field,
-  FieldResolver,
   InputType,
   Int,
   Mutation,
@@ -39,6 +38,7 @@ export class PostResolver {
   textSnippet(@Root() root: Post) {
     return root.text.slice(0, 50);
   }
+
   // Get all posts
   @Query(() => PaginatedPosts)
   async posts(
