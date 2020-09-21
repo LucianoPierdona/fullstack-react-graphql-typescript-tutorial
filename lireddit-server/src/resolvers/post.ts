@@ -48,7 +48,7 @@ export class PostResolver {
     @Arg("postId", () => Int) postId: number,
     @Arg("value", () => Int) value: number,
     @Ctx() { req }: MyContext
-    ) {
+  ) {
     const isUpdoot = value !== -1;
     const realValue = isUpdoot ? 1 : -1;
     const { userId } = req.session;
